@@ -13,7 +13,6 @@ public class MainActivityTest {
 
     private MainActivity subject;
     private MainActivityImpl impl;
-    private Bundle bundle;
 
     @Before
     public void setup () {
@@ -21,11 +20,11 @@ public class MainActivityTest {
         impl = mock (MainActivityImpl.class);
         subject.impl = impl;
         subject.closeValve ();
-        bundle = new Bundle ();
     }
 
     @Test
     public void delegatesOnCreateToImpl () {
+        Bundle bundle = new Bundle ();
         subject.onCreate (bundle);
 
         verify (impl).onCreate (bundle);

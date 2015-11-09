@@ -40,38 +40,14 @@ public class MainActivityImpl {
         }
     }
 
-    public class StartListener implements View.OnClickListener {
-
-        private final View otherButton;
-
-        public StartListener (View stopButton) {
-            this.otherButton = stopButton;
-        }
-
-        @Override
-        public void onClick (View v) {
-            v.setEnabled (false);
-            otherButton.setEnabled (true);
-            register ();
-            inProgress = true;
-        }
+    public class StartListener extends ToggleButtonListener {
+        public StartListener (View stopButton) {super (stopButton);}
+        @Override protected void guts () {register (); inProgress = true;}
     }
 
-    public class StopListener implements View.OnClickListener {
-
-        private final View otherButton;
-
-        public StopListener (View startButton) {
-            this.otherButton = startButton;
-        }
-
-        @Override
-        public void onClick (View v) {
-            v.setEnabled (false);
-            otherButton.setEnabled (true);
-            unregister ();
-            inProgress = false;
-        }
+    public class StopListener extends ToggleButtonListener {
+        public StopListener (View startButton) {super (startButton);}
+        @Override protected void guts () {unregister (); inProgress = false;}
     }
 
     private SensorManager getSensorManager () {
@@ -108,5 +84,23 @@ public class MainActivityImpl {
 
     private void unregister () {
         manager.unregisterListener (controller, accelerometer);
+    }
+
+    private abstract class ToggleButtonListener implements View.OnClickListener {
+
+        protected final View otherButton;
+
+        protected ToggleButtonListener (View otherButton) {
+            this.otherButton = otherButton;
+        }
+
+        @Override
+        public void onClick (View v) {
+            v.setEnabled (false);
+            otherButton.setEnabled (true);
+            guts ();
+        }
+
+        protected abstract void guts ();
     }
 }

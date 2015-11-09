@@ -11,6 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.lang.reflect.Constructor;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -57,12 +59,10 @@ public class MainActivityImplTest {
     }
 
     @Test
-    public void onCreateInstallsProperOnClickListeners () {
+    public void onCreateInstallsProperOnClickListenersAndClearsProgressFlag () {
         addAccelerometer (activity);
-        Button startButton = mock (Button.class);
-        when (activity.findViewById (R.id.start)).thenReturn (startButton);
-        Button stopButton = mock (Button.class);
-        when (activity.findViewById (R.id.stop)).thenReturn (stopButton);
+        Button startButton = makeButton (R.id.start);
+        Button stopButton = makeButton (R.id.stop);
 
         subject.onCreate (null);
 
@@ -74,30 +74,28 @@ public class MainActivityImplTest {
     @Test
     public void onStartOnStopWhileInProgressScenario () {
         SensorManager manager = mock (SensorManager.class);
-        ImageView xRadiator = mock (ImageView.class);
-        when (activity.findViewById (R.id.xRadiator)).thenReturn (xRadiator);
-        ImageView yRadiator = mock (ImageView.class);
-        when (activity.findViewById (R.id.yRadiator)).thenReturn (yRadiator);
-        ImageView zRadiator = mock (ImageView.class);
-        when (activity.findViewById (R.id.zRadiator)).thenReturn (zRadiator);
         Sensor accelerometer = mock (Sensor.class);
         subject.manager = manager;
         subject.accelerometer = accelerometer;
         subject.inProgress = true;
+        ImageView xRadiator = makeRadiator (R.id.xRadiator);
+        ImageView yRadiator = makeRadiator (R.id.yRadiator);
+        ImageView zRadiator = makeRadiator (R.id.zRadiator);
 
         subject.onStart ();
 
         ArgumentCaptor<SensorEventListener> captor = ArgumentCaptor.forClass (SensorEventListener.class);
         verify (manager).registerListener (captor.capture (), eq (accelerometer), eq (100000));
         SquareController controller = (SquareController)captor.getValue ();
-
         assertSame (xRadiator, controller.xRadiator);
         assertSame (yRadiator, controller.yRadiator);
         assertSame (zRadiator, controller.zRadiator);
+        assertEquals (true, subject.inProgress);
 
         subject.onStop ();
 
         verify (manager).unregisterListener (controller, accelerometer);
+        assertEquals (true, subject.inProgress);
     }
 
     @Test
@@ -110,11 +108,13 @@ public class MainActivityImplTest {
 
         subject.onStart ();
 
-        verify (manager, never ()).registerListener (any (SensorEventListener.class), any (Sensor.class), anyInt ());
+        verify (manager, never ()).registerListener (any (SensorEventListener.class), eq (accelerometer), anyInt ());
+        assertEquals (false, subject.inProgress);
 
         subject.onStop ();
 
-        verify (manager, never ()).unregisterListener (any (SensorEventListener.class), any (Sensor.class));
+        verify (manager, never ()).unregisterListener (any (SensorEventListener.class), eq (accelerometer));
+        assertEquals (false, subject.inProgress);
     }
 
     @Test
@@ -208,5 +208,17 @@ public class MainActivityImplTest {
 
         verify (thisButton).setEnabled (false);
         verify (otherButton).setEnabled (true);
+    }
+
+    private ImageView makeRadiator (int id) {
+        ImageView radiator = mock (ImageView.class);
+        when (activity.findViewById (id)).thenReturn (radiator);
+        return radiator;
+    }
+
+    private Button makeButton (int id) {
+        Button button = mock (Button.class);
+        when (activity.findViewById (id)).thenReturn (button);
+        return button;
     }
 }

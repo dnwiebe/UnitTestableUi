@@ -18,7 +18,12 @@ public class ValvedActivityTest {
         checkMethodThrowsException ("onResume", subject::onResume);
         checkMethodThrowsException ("onPause", subject::onPause);
         checkMethodThrowsException ("onStop", subject::onStop);
-        checkMethodThrowsException ("onDestroy", subject::onDestroy);
+        checkMethodThrowsException ("onDestroy", new Runnable () {
+            @Override
+            public void run () {
+                subject.onDestroy ();
+            }
+        });
     }
 
     @Test
