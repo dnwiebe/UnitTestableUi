@@ -1,4 +1,4 @@
-package com.ads.unittestableui.app;
+package com.demo.unittestableui.app;
 
 import org.junit.Test;
 

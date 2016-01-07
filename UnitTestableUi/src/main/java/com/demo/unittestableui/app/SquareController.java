@@ -1,4 +1,4 @@
-package com.ads.unittestableui.app;
+package com.demo.unittestableui.app;
 
 import android.graphics.Bitmap;
 import android.hardware.Sensor;

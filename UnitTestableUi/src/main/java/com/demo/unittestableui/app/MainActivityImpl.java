@@ -1,4 +1,4 @@
-package com.ads.unittestableui.app;
+package com.demo.unittestableui.app;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -11,46 +11,37 @@ import android.widget.ImageView;
  * Created by dnwiebe on 11/5/15.
  */
 public class MainActivityImpl {
-    private MainActivity activity;
     SensorManager manager;
     Sensor accelerometer;
     SquareController controller;
     boolean inProgress;
 
-    public MainActivityImpl (MainActivity activity) {
-        this.activity = activity;
-    }
-
-    public void onCreate (Bundle bundle) {
-        manager = getSensorManager ();
+    public void onCreate (MainActivity activity, Bundle bundle) {
+        manager = getSensorManager (activity);
         accelerometer = getAccelerometer (manager);
         activity.setContentView (R.layout.activity_main);
-        setButtonListeners ();
+        setButtonListeners (activity);
     }
 
-    public void onStart () {
-        if (inProgress) {
-            register ();
-        }
+    public void onStart (MainActivity activity) {
+        if (inProgress) {register (activity);}
     }
 
     public void onStop () {
-        if (inProgress) {
-            unregister ();
-        }
+        if (inProgress) {unregister ();}
     }
 
     public class StartListener extends ToggleButtonListener {
-        public StartListener (View stopButton) {super (stopButton);}
-        @Override protected void guts () {register (); inProgress = true;}
+        public StartListener (MainActivity activity, View stopButton) {super (activity, stopButton);}
+        @Override protected void specificOnClick () {register (activity); inProgress = true;}
     }
 
     public class StopListener extends ToggleButtonListener {
-        public StopListener (View startButton) {super (startButton);}
-        @Override protected void guts () {unregister (); inProgress = false;}
+        public StopListener (MainActivity activity, View startButton) {super (activity, startButton);}
+        @Override protected void specificOnClick () {unregister (); inProgress = false;}
     }
 
-    private SensorManager getSensorManager () {
+    private SensorManager getSensorManager (MainActivity activity) {
         SensorManager manager = (SensorManager)activity.getSystemService (Context.SENSOR_SERVICE);
         if (manager == null) {
             throw new IllegalStateException ("This app requires a SensorManager system service");
@@ -66,14 +57,14 @@ public class MainActivityImpl {
         return accelerometer;
     }
 
-    private void setButtonListeners () {
+    private void setButtonListeners (MainActivity activity) {
         View startButton = activity.findViewById (R.id.start);
         View stopButton = activity.findViewById (R.id.stop);
-        startButton.setOnClickListener (new StartListener (stopButton));
-        stopButton.setOnClickListener (new StopListener (startButton));
+        startButton.setOnClickListener (new StartListener (activity, stopButton));
+        stopButton.setOnClickListener (new StopListener (activity, startButton));
     }
 
-    private void register () {
+    private void register (MainActivity activity) {
         controller = new SquareController (
                 (ImageView)activity.findViewById (R.id.xRadiator),
                 (ImageView)activity.findViewById (R.id.yRadiator),
@@ -88,19 +79,25 @@ public class MainActivityImpl {
 
     private abstract class ToggleButtonListener implements View.OnClickListener {
 
+        protected final MainActivity activity;
         protected final View otherButton;
 
-        protected ToggleButtonListener (View otherButton) {
+        protected ToggleButtonListener (MainActivity activity, View otherButton) {
+            this.activity = activity;
             this.otherButton = otherButton;
         }
 
         @Override
         public void onClick (View v) {
-            v.setEnabled (false);
-            otherButton.setEnabled (true);
-            guts ();
+            commonOnClick (v);
+            specificOnClick ();
         }
 
-        protected abstract void guts ();
+        private void commonOnClick (View v) {
+            v.setEnabled (false);
+            otherButton.setEnabled (true);
+        }
+
+        protected abstract void specificOnClick();
     }
 }

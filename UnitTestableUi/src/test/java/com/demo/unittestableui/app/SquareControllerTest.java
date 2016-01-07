@@ -1,4 +1,4 @@
-package com.ads.unittestableui.app;
+package com.demo.unittestableui.app;
 
 import android.graphics.Bitmap;
 import static android.hardware.SensorManager.*;
@@ -68,6 +68,11 @@ public class SquareControllerTest {
         checkValueToColor (0.0, 0.0, ZERO_G, zRadiator, 0xFF00007F);
         checkValueToColor (0.0, 0.0, PLUS_1_G, zRadiator, 0xFF0000FF);
         checkValueToColor (0.0, 0.0, PLUS_2_GS, zRadiator, 0xFF0000FF);
+    }
+
+    @Test
+    public void justToCoverAnEmptyButRequiredMethod () {
+        subject.onAccuracyChanged (null, 0);
     }
 
     private void checkValueToColor (double x, double y, double z, ImageView radiator, int expectedColor) {

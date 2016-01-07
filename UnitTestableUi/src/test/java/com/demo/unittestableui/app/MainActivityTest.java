@@ -1,4 +1,4 @@
-package com.ads.unittestableui.app;
+package com.demo.unittestableui.app;
 
 import android.os.Bundle;
 import org.junit.Before;
@@ -27,14 +27,14 @@ public class MainActivityTest {
         Bundle bundle = new Bundle ();
         subject.onCreate (bundle);
 
-        verify (impl).onCreate (bundle);
+        verify (impl).onCreate (subject, bundle);
     }
 
     @Test
     public void delegatesOnStartToImpl () {
         subject.onStart ();
 
-        verify (impl).onStart ();
+        verify (impl).onStart (subject);
     }
 
     @Test
