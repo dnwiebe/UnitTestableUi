@@ -1,5 +1,6 @@
 package com.demo.unittestableui.app;
 
+import android.app.Service;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
@@ -56,6 +57,22 @@ public class MainActivityImplTest {
         catch (IllegalStateException e) {
             assertEquals ("This app requires an accelerometer", e.getMessage ());
         }
+    }
+
+    @Test
+    public void onCreateInitializesSensorsAndView () {
+        SensorManager sensorManager = mock (SensorManager.class);
+        when (activity.getSystemService (Service.SENSOR_SERVICE)).thenReturn (sensorManager);
+        Sensor accelerometer = mock (Sensor.class);
+        when (sensorManager.getDefaultSensor (Sensor.TYPE_ACCELEROMETER)).thenReturn (accelerometer);
+        makeButton (R.id.start);
+        makeButton (R.id.stop);
+
+        subject.onCreate (activity, null);
+
+        assertSame (subject.manager, sensorManager);
+        assertSame (subject.accelerometer, accelerometer);
+        verify (activity).setContentView (R.layout.activity_main);
     }
 
     @Test
