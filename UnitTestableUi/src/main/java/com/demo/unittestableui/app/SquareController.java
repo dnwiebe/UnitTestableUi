@@ -21,7 +21,7 @@ public class SquareController implements SensorEventListener {
     interface BitmapFactory {
         Bitmap create (int width, int height, Bitmap.Config config);
     }
-    BitmapFactory bitmapFactory = Bitmap::createBitmap; // rhs is untested and untestable code
+    BitmapFactory bitmapFactory = Bitmap::createBitmap; // rhs is untested and untestable code: not caught
 
     public SquareController (ImageView xRadiator, ImageView yRadiator, ImageView zRadiator) {
         this.xRadiator = xRadiator;
