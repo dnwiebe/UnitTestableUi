@@ -1,6 +1,5 @@
 package com.demo.unittestableui.app;
 
-import android.app.Service;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
@@ -11,8 +10,6 @@ import android.widget.ImageView;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import java.lang.reflect.Constructor;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -29,6 +26,31 @@ public class MainActivityImplTest {
     public void setup () {
         activity = mock (MainActivity.class);
         subject = new MainActivityImpl ();
+    }
+
+    @Test
+    public void onCreateInitializesSensorAndView () {
+        Sensor accelerometer = makeAndInjectAccelerometer (activity);
+        makeAndInjectButton (R.id.start);
+        makeAndInjectButton (R.id.stop);
+
+        subject.onCreate (activity, null);
+
+        assertSame (subject.accelerometer, accelerometer);
+        verify (activity).setContentView (R.layout.activity_main);
+    }
+
+    @Test
+    public void onCreateInstallsProperOnClickListenersAndClearsProgressFlag () {
+        makeAndInjectAccelerometer (activity);
+        Button startButton = makeAndInjectButton (R.id.start);
+        Button stopButton = makeAndInjectButton (R.id.stop);
+
+        subject.onCreate (activity, null);
+
+        assertSame (MainActivityImpl.StartListener.class, getOnClickListener (startButton).getClass ());
+        assertSame (MainActivityImpl.StopListener.class, getOnClickListener (stopButton).getClass ());
+        assertEquals (false, subject.inProgress);
     }
 
     @Test
@@ -60,44 +82,15 @@ public class MainActivityImplTest {
     }
 
     @Test
-    public void onCreateInitializesSensorsAndView () {
-        SensorManager sensorManager = mock (SensorManager.class);
-        when (activity.getSystemService (Service.SENSOR_SERVICE)).thenReturn (sensorManager);
-        Sensor accelerometer = mock (Sensor.class);
-        when (sensorManager.getDefaultSensor (Sensor.TYPE_ACCELEROMETER)).thenReturn (accelerometer);
-        makeButton (R.id.start);
-        makeButton (R.id.stop);
-
-        subject.onCreate (activity, null);
-
-        assertSame (subject.manager, sensorManager);
-        assertSame (subject.accelerometer, accelerometer);
-        verify (activity).setContentView (R.layout.activity_main);
-    }
-
-    @Test
-    public void onCreateInstallsProperOnClickListenersAndClearsProgressFlag () {
-        addAccelerometer (activity);
-        Button startButton = makeButton (R.id.start);
-        Button stopButton = makeButton (R.id.stop);
-
-        subject.onCreate (activity, null);
-
-        assertSame (MainActivityImpl.StartListener.class, getOnClickListener (startButton).getClass ());
-        assertSame (MainActivityImpl.StopListener.class, getOnClickListener (stopButton).getClass ());
-        assertEquals (false, subject.inProgress);
-    }
-
-    @Test
     public void onStartOnStopWhileInProgressScenario () {
         SensorManager manager = mock (SensorManager.class);
         Sensor accelerometer = mock (Sensor.class);
         subject.manager = manager;
         subject.accelerometer = accelerometer;
         subject.inProgress = true;
-        ImageView xRadiator = makeRadiator (R.id.xRadiator);
-        ImageView yRadiator = makeRadiator (R.id.yRadiator);
-        ImageView zRadiator = makeRadiator (R.id.zRadiator);
+        ImageView xRadiator = makeAndInjectRadiator (R.id.xRadiator);
+        ImageView yRadiator = makeAndInjectRadiator (R.id.yRadiator);
+        ImageView zRadiator = makeAndInjectRadiator (R.id.zRadiator);
 
         subject.onStart (activity);
 
@@ -134,7 +127,7 @@ public class MainActivityImplTest {
         assertEquals (false, subject.inProgress);
     }
 
-    private Sensor addAccelerometer (MainActivity activity) {
+    private Sensor makeAndInjectAccelerometer (MainActivity activity) {
         SensorManager sensorManager = mock (SensorManager.class);
         Sensor sensor = mock (Sensor.class);
         when (sensorManager.getDefaultSensor (Sensor.TYPE_ACCELEROMETER)).thenReturn (sensor);
@@ -148,13 +141,13 @@ public class MainActivityImplTest {
         return captor.getValue ();
     }
 
-    private ImageView makeRadiator (int id) {
+    private ImageView makeAndInjectRadiator (int id) {
         ImageView radiator = mock (ImageView.class);
         when (activity.findViewById (id)).thenReturn (radiator);
         return radiator;
     }
 
-    private Button makeButton (int id) {
+    private Button makeAndInjectButton (int id) {
         Button button = mock (Button.class);
         when (activity.findViewById (id)).thenReturn (button);
         return button;
