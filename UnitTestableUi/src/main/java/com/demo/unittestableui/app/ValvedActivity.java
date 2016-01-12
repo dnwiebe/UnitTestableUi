@@ -17,6 +17,7 @@ public class ValvedActivity extends Activity {
     }
 
     @Override
+    // Note that the passing of bundle is untested and untestable, yet marked as covered
     public void onCreate (Bundle bundle) {if (valveIsOpen) {super.onCreate (bundle);}}
 
     @Override
