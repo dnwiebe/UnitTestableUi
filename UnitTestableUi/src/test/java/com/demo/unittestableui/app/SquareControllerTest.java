@@ -33,6 +33,8 @@ public class SquareControllerTest {
         zRadiator = makeRadiator ();
         bitmap = mock (Bitmap.class);
         subject = new SquareController (xRadiator, yRadiator, zRadiator);
+        // PACKAGE-PRIVATE FACTORY INNER INTERFACE
+        // Necessary because Bitmap.createBitmap is a static factory method in android.*
         subject.bitmapFactory = (width, height, config) -> bitmap;
     }
 

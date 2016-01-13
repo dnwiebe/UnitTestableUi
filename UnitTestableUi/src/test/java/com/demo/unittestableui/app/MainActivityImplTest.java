@@ -48,8 +48,12 @@ public class MainActivityImplTest {
 
         subject.onCreate (activity, null);
 
-        assertSame (MainActivityImpl.StartListener.class, getOnClickListener (startButton).getClass ());
-        assertSame (MainActivityImpl.StopListener.class, getOnClickListener (stopButton).getClass ());
+        MainActivityImpl.StartListener startListener =
+                (MainActivityImpl.StartListener)getOnClickListener (startButton);
+        checkSelfOther (startListener, startButton, stopButton);
+        MainActivityImpl.StopListener stopListener =
+                (MainActivityImpl.StopListener)getOnClickListener (stopButton);
+        checkSelfOther (stopListener, stopButton, startButton);
         assertEquals (false, subject.inProgress);
     }
 
@@ -151,5 +155,12 @@ public class MainActivityImplTest {
         Button button = mock (Button.class);
         when (activity.findViewById (id)).thenReturn (button);
         return button;
+    }
+
+    private void checkSelfOther (View.OnClickListener listener,
+                                 Button selfButton, Button otherButton) {
+        listener.onClick (selfButton);
+        verify (selfButton).setEnabled (false);
+        verify (otherButton).setEnabled (true);
     }
 }
