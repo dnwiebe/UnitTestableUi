@@ -6,10 +6,6 @@
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$" />
   </component>
-  <component name="HaskellBuildOptions">
-    <ghcPath>/usr/lib/ghc/bin/ghc</ghcPath>
-    <cabalPath>/usr/bin/cabal</cabalPath>
-  </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
